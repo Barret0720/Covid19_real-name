@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>鮮堡漢堡 防疫實聯制</title>
+    <link rel="shortcut icon" href="../assets/img/favicon.ico" />
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" /> -->
+    <link rel="stylesheet" href="./assets/style/style.min.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.js" crossorigin="anonymous"></script>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <!-- jQuery v1.9.1 -->
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <!-- jquery-loading v1.3.0 -->
+    <link href="https://cdn.jsdelivr.net/npm/jquery-easy-loading@1.3.0/dist/jquery.loading.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery-easy-loading@1.3.0/dist/jquery.loading.min.js"></script>
+</head>
+
+<body>
+      <div class="container" id="app">
+        <h4>不要擔心、不要害怕！不是你手機的問題，不是電信業者網路的問題！一切只是，這個網頁在做一些事前工作</h4>
+        <h4>鮮堡漢堡 活力早餐的加油站！  祝您用餐愉快</h4>
+    </div>
+</body>
+
+<script>
+   $('body').loading();
+</script>
+<script>
+    var getUrlString = location.href;
+    var url = new URL(getUrlString);
+    console.log(url);
+    let params = url.searchParams;
+    let desk = url.searchParams.get("desk");
+    if (desk == "") {
+        desk = "non"
+    };
+    var linename = '';
+    var lineid = '';
+    $(function(linedata) {
+        // Using a Promise object
+        liff
+            .init({
+                liffId: "1655989057-ZodDL3dB" // Use own liffId
+            })
+            .then(() => {
+                // Start to use liff's api
+                console.log("start");
+
+                let linename = "";
+                let lineid = "";
+                let profile = "";
+
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                } else {
+                    liff.getProfile()
+                        .then(profile => {
+                            var linename = profile.displayName;
+                            var lineid = profile.userId;
+                            var pictureUrl = profile.pictureUrl;
+                            var statusMessage = profile.statusMessage;
+                            var linestr = '&name=' + profile.displayName + '&uid=' + profile.userId;
+                            let time = new Date();
+                            let Tail = location.search;
+                            let phone = profile.statusMessage;
+                            let token = liff.getDecodedIDToken();
+                            let TRAN = url+'callback.html?desk=' + desk + linestr;
+                            var mail = token;
+
+                            $.ajax({
+                                // 更新資料就要重新佈署一次，網址就會更改
+                                url: "https://script.google.com/macros/s/AKfycbx-VmJ4VaucxMIAJgEUJ5VnKdRTW9cLP_ZNryEChm4XSalBolU6qn0UcUf1YJZCh1Y-/exec",
+                                data: {
+                                    "scantime": time,
+                                    "LINE_UID": lineid,
+                                    "LINE_Name": linename,
+                                    "pictureUrl": pictureUrl,
+                                    "statusMessage": statusMessage,
+                                    "Email": mail,
+                                    "Tail": Tail,
+                                    "TRAN": TRAN,
+                                },
+                                success: function(response) {
+                                    if (response == "done") {
+                                      document.location.href = url+'callback.html?desk=' + desk + linestr;
+                                    }
+                                },
+
+                            });
+                            console.log(profile);
+                            console.log(linestr);
+                            console.log(url+'callback.html?desk=' + desk + linestr);
+
+                        })
+                }
+            })
+            .catch((err) => {
+                // Error happens during initialization
+                console.log(err.code, err.message);
+                console.log("error");
+            });
+    });
+</script>
+
+</html>
